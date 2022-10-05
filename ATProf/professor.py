@@ -5,7 +5,7 @@ import requests
 import pika
 
 from fastapi import FastAPI, HTTPException
-from modelos import Atividade
+from modelos import Atividade, AtividadeStatus
 
 
 ATIVIDADE_ENVIADA = "atividadeEnviada"
@@ -21,19 +21,25 @@ def on_atividade_created(ch, method, properties, body):
 
     nota = random.randint(0,10)
     nota = float(nota)
+
     if nota >= 6:
-        message = {"Nota": '{nota}'}
+        
+        atividade.nota = nota
+        atividade.status = AtividadeStatus.aprovada
+        
         print(f'Atividade aprovada {atividade.atividade_id}')
     else:
-        message = {"Nota": '{nota}'}
+       
+        atividade.nota = nota
+        atividade.status = AtividadeStatus.reprovada
+        
         print(f'Atividade reprovada {atividade.atividade_id}')
 
     # PUT para o Order
     resp = requests.put(
         url=f'http://localhost:8000/atividade/{atividade.atividade_id}',
-        json=message
+        json = {"nota": atividade.nota,"status": atividade.status}
     )
-    print(resp)
 
 @app.get("/")
 async def root():
@@ -58,7 +64,7 @@ def main():
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8001)
+    #uvicorn.run(app, host="127.0.0.1", port=8001)
     main()
     
     

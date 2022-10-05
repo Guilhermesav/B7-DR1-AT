@@ -23,3 +23,4 @@ class Atividade(BaseModel):
     aluno: str
     nota: float
     disciplina: str
+    status: AtividadeStatus = AtividadeStatus.entregue
